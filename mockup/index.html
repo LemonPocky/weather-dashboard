@@ -17,18 +17,25 @@
     <div class="container-fluid">
 
         <div class="row">
-            <div class="col col-4">
-                <div class="card">
+            <div class="col col-lg-4 col-12">
+                <div class="card mb-2">
                     <div class="card-body">
                         <h3 class="card-title">Search for a city:</h3>
                         <input type="text" class="form-control mb-3" placeholder="City">
                         <button type="submit" class="btn btn-primary w-100">Search</button>
                     </div>
                 </div>
+                <div id="history-container">
+                    <button class="btn btn-secondary history-button" type="button" value="Input">Los Angeles, CA</button>
+                    <button class="btn btn-secondary history-button" type="button" value="Input">Chicago, IL</button>
+                    <button class="btn btn-secondary history-button" type="button" value="Input">New York, NY</button>
+                    <button class="btn btn-secondary history-button" type="button" value="Input">Phoenix, AZ</button>
+                </div>
             </div>
 
             <div class="col">
-                <div class="card">
+                <h2>Current Weather</h2>
+                <div class="card w-100 text-center">
                     <div class="card-body">
                         <h3>
                             San Diego <span class="today">(6/24/2021)</span> 
@@ -39,9 +46,93 @@
                             <li id="current-wind">Wind: 9 MPH NW</li>
                             <li id="current-humidity">Humidity: 12%</li>
                             <li id="current-uv">UV Index: 
-                                <span class="bg-success text-white px-3 rounded-lg">0.30</span>
+                                <span class="uv-number bg-success text-white px-3 rounded-lg">0.30</span>
                             </li>
                         </ul>
+                    </div>
+                </div>
+
+                <h2>Five-Day Forecast</h2>
+                <div id="five-day-forecast" class="d-flex flex-wrap justify-content-between">
+                    <div class="card forecast-card bg-dark">
+                        <div class="card-body">
+                            <h3>Friday</h3>
+                            <h3>6/25/2021</h3>
+                            <img src="http://openweathermap.org/img/wn/02d@2x.png">
+
+                            <ul id="five-day-1" class="forecast-day list-unstyled">
+                                <li class="forecast-temp">Temp: 73°F</li>
+                                <li class="forecast-wind">Wind: 9 MPH NW</li>
+                                <li class="forecast-humidity">Humidity: 12%</li>
+                                <li class="forecast-uv">UV Index:
+                                    <span class="uv-number bg-success text-white px-3 rounded-lg">0.30</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card forecast-card bg-dark">
+                        <div class="card-body">
+                            <h3>Friday</h3>
+                            <h3>6/25/2021</h3>
+                            <img src="http://openweathermap.org/img/wn/02d@2x.png">
+                    
+                            <ul id="five-day-1" class="forecast-day list-unstyled">
+                                <li class="forecast-temp">Temp: 73°F</li>
+                                <li class="forecast-wind">Wind: 9 MPH NW</li>
+                                <li class="forecast-humidity">Humidity: 12%</li>
+                                <li class="forecast-uv">UV Index:
+                                    <span class="uv-number bg-success text-white px-3 rounded-lg">0.30</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card forecast-card bg-dark">
+                        <div class="card-body">
+                            <h3>Friday</h3>
+                            <h3>6/25/2021</h3>
+                            <img src="http://openweathermap.org/img/wn/02d@2x.png">
+                    
+                            <ul id="five-day-1" class="forecast-day list-unstyled">
+                                <li class="forecast-temp">Temp: 73°F</li>
+                                <li class="forecast-wind">Wind: 9 MPH NW</li>
+                                <li class="forecast-humidity">Humidity: 12%</li>
+                                <li class="forecast-uv">UV Index:
+                                    <span class="uv-number bg-success text-white px-3 rounded-lg">0.30</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card forecast-card bg-dark">
+                        <div class="card-body">
+                            <h3>Friday</h3>
+                            <h3>6/25/2021</h3>
+                            <img src="http://openweathermap.org/img/wn/02d@2x.png">
+                    
+                            <ul id="five-day-1" class="forecast-day list-unstyled">
+                                <li class="forecast-temp">Temp: 73°F</li>
+                                <li class="forecast-wind">Wind: 9 MPH NW</li>
+                                <li class="forecast-humidity">Humidity: 12%</li>
+                                <li class="forecast-uv">UV Index:
+                                    <span class="uv-number bg-success text-white px-3 rounded-lg">0.30</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card forecast-card bg-dark">
+                        <div class="card-body">
+                            <h3>Friday</h3>
+                            <h3>6/25/2021</h3>
+                            <img src="http://openweathermap.org/img/wn/02d@2x.png">
+                    
+                            <ul id="five-day-1" class="forecast-day list-unstyled">
+                                <li class="forecast-temp">Temp: 73°F</li>
+                                <li class="forecast-wind">Wind: 9 MPH NW</li>
+                                <li class="forecast-humidity">Humidity: 12%</li>
+                                <li class="forecast-uv">UV Index:
+                                    <span class="uv-number bg-success text-white px-3 rounded-lg">0.30</span>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
