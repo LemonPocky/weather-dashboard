@@ -1,0 +1,14 @@
+.history-button {
+    width: 100%;
+    margin: 0.5rem 0;
+}
+
+#five-day-forecast {
+    flex-wrap: wrap;
+}
+
+.forecast-card {
+    color: white;
+    flex-grow: 1;
+    text-align: center;
+}
