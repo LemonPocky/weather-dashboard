@@ -1,5 +1,5 @@
-// Forecast object prototype
-// forecast {
+// Weather object prototype
+// weather {
 //     date: Moment,
 //     iconCode: String,
 //     description: String,
@@ -9,67 +9,93 @@
 //     humidity: Number,
 //     uvi: Number
 // }
+
+// Constants
 const dateFormatString = 'M/D/YYYY';
 const iconUrl = "http://openweathermap.org/img/wn/";
 
-function displayForecast(forecasts) {
-    const fiveDayForecastElement = $('#five-day-forecast');
-    fiveDayForecastElement.addClass('d-flex');
-    for (let i = 0; i < forecasts.length; i++) {
-        const newCard = createCard(forecasts[i]);
-        fiveDayForecastElement.append(newCard);
-    }
+// Show weather in the dashboard (right panel)
+function renderWeather(currentWeather, forecasts) {
+  const dashboard = $('#dashboard');
+
+  dashboard.append($("<h2>").text("Current Weather"));
+  dashboard.append(displayCurrent(currentWeather));
+
+  dashboard.append($('<h2>').text('Five-Day Forecast'));
+  dashboard.append(displayForecast(forecasts));
 }
 
-function createCard(forecast) {
+// Create the card that displays the current weather
+function displayCurrent(currentWeather) {
+  const currentWeatherCard = createCard(currentWeather);
+  currentWeatherCard.attr('id', 'current-weather');
+  return currentWeatherCard;
+}
+
+// Create the container + cards that shows the five-day forecast
+function displayForecast(forecasts) {
+  const fiveDayForecastElement = $("<div>");
+  fiveDayForecastElement.attr('id', 'five-day-forecast');
+  fiveDayForecastElement.addClass('d-flex');
+  // Create a new card for each day in the forecast
+  for (let i = 0; i < forecasts.length; i++) {
+      const newCard = createCard(forecasts[i]);
+      newCard.addClass('forecast-card bg-dark');
+      fiveDayForecastElement.append(newCard);
+  }
+  return fiveDayForecastElement;
+}
+
+// Generates a card displaying the weather and details
+function createCard(weather) {
     const iconSize = '2x';
     const newCard = $('<div>');
-    newCard.addClass('card forecast-card bg-dark');
+    newCard.addClass('card');
     const newCardBody = $('<div>');
     newCardBody.addClass('card-body');
     newCard.append(newCardBody);
 
     // Day of the week
     const dayOfTheWeekElement = $('<h3>');
-    dayOfTheWeekElement.text(forecast.date.format('dddd'));
+    dayOfTheWeekElement.text(weather.date.format('dddd'));
     newCardBody.append(dayOfTheWeekElement);
 
     // Date
     const dateElement = $('<h3>');
-    dateElement.text(forecast.date.format(dateFormatString));
+    dateElement.text(weather.date.format(dateFormatString));
     newCardBody.append(dateElement);
 
     // Icon
     const iconElement = $('<img>');
-    iconElement.attr('src', iconUrl + forecast.iconCode + '@' 
+    iconElement.attr('src', iconUrl + weather.iconCode + '@' 
       + iconSize + '.png');
     iconElement.attr('alt', '');
     newCardBody.append(iconElement);
 
-    // Forecast Details
-    const forecastDetails = $('<ul>');
-    forecastDetails.addClass('list-unstyled');
-    forecastDetails.append($('<li>')
-      .text(firstUpperCase(forecast.description)));
-    forecastDetails.append($('<li>')
-      .text('High: ' + forecast.tempMax + '°F'));
-    forecastDetails.append($('<li>')
-      .text('Wind: ' + forecast.windSpeed + ' MPH ' 
-        + getWindDirection(forecast.windDegrees)));
-    forecastDetails.append($('<li>')
-      .text('Humidity: ' + forecast.humidity + '%'));
+    // Weather Details
+    const weatherDetails = $('<ul>');
+    weatherDetails.addClass('list-unstyled');
+    weatherDetails.append($('<li>')
+      .text(firstUpperCase(weather.description)));
+    weatherDetails.append($('<li>')
+      .text('High: ' + weather.tempMax + '°F'));
+    weatherDetails.append($('<li>')
+      .text('Wind: ' + weather.windSpeed + ' MPH ' 
+        + getWindDirection(weather.windDegrees)));
+    weatherDetails.append($('<li>')
+      .text('Humidity: ' + weather.humidity + '%'));
 
     // UV Index
     const UviElement = $('<li>');
     UviElement.text('UV Index: ');
     UviInnerElement = $('<span>');
     UviInnerElement.addClass('text-white px-3 rounded-lg');
-    UviInnerElement.css('background-color', getUviColor(forecast.uvi));
-    UviInnerElement.text(forecast.uvi);
+    UviInnerElement.css('background-color', getUviColor(weather.uvi));
+    UviInnerElement.text(weather.uvi);
     UviElement.append(UviInnerElement);
-    forecastDetails.append(UviElement);    
+    weatherDetails.append(UviElement);    
 
-    newCardBody.append(forecastDetails);
+    newCardBody.append(weatherDetails);
     return newCard;
 }
 
@@ -145,6 +171,17 @@ function firstUpperCase(s) {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
+let currentWeather = {
+  date: moment.unix(1624752375),
+  iconCode: "02d",
+  description: "few clouds",
+  tempMax: 72.41,
+  windSpeed: 6.1,
+  windDegrees: 30,
+  humidity: 13,
+  uvi: 6.34,
+};
+
 let forecasts = [
   {
     date: moment.unix(1624752375),
@@ -152,7 +189,7 @@ let forecasts = [
     description: "few clouds",
     tempMax: 72.41,
     windSpeed: 6.1,
-    windDegrees: 260,
+    windDegrees: 69,
     humidity: 13,
     uvi: 6.34,
   },
@@ -198,4 +235,4 @@ let forecasts = [
   },
 ];
 
-displayForecast(forecasts);
+renderWeather(currentWeather, forecasts);

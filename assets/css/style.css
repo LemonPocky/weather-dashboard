@@ -3,6 +3,11 @@
     margin: 0.5rem 0;
 }
 
+#current-weather {
+    width: 100%;
+    text-align: center;
+}
+
 #five-day-forecast {
     flex-wrap: wrap;
 }
