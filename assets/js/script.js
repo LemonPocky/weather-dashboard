@@ -284,6 +284,8 @@ function createCard(weather) {
 }
 
 // Add the search to the search history
+// TODO: Limit to 10 buttons
+// TODO: Check and ignore duplicates
 function addToHistory(geoLocation) {
   const historyContainer = $('#history-container');
   // Create a new Bootstrap button
@@ -302,6 +304,22 @@ function addToHistory(geoLocation) {
   
   // Add the button to the top of the history
   historyContainer.prepend(button);
+
+  // Save entry into localStorage
+  addToLocalStorage(geoLocation);
+}
+
+// Saves geoLocation into localStorage array
+// The most recent element will be at the front
+// TODO: Limit to 10
+function addToLocalStorage(geoLocation) {
+  let savedSearches = JSON.parse(localStorage.getItem("savedSearches"));
+  console.log(savedSearches);
+  if (!savedSearches) {
+    savedSearches = [];
+  }
+  savedSearches.unshift(geoLocation);
+  localStorage.setItem("savedSearches", JSON.stringify(savedSearches));
 }
 
 // Clears the dashboard and shows loading circle
