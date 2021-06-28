@@ -9,10 +9,81 @@
 //     humidity: Number,
 //     uvi: Number
 // }
+// Geographic location prototype
+// geoLocation {
+//   lat: Number
+//   lon: Number
+//   country: String
+//   state: String
+// }
 
 // Constants
 const dateFormatString = 'M/D/YYYY';
 const iconUrl = "http://openweathermap.org/img/wn/";
+// Normally this would be in a config file probably
+const apiKey = '2d7684df0d8779cc4e1642a2a6157140';
+
+// Fetch geographic data about a city based on city string
+function fetchGeoCoordinates(city) {
+  const apiUrl = 'http://api.openweathermap.org/geo/1.0/direct';
+  // max number of results to get (assume only first for now)
+  const limit = 1;
+
+  fetch(apiUrl 
+    + '?q=' + city 
+    + '&limit=' + limit 
+    + '&appid=' + apiKey)
+    .then(function (response) {
+      return response.json();
+    })
+    .then(function (data) {
+      // Returns null if city is not found
+      if (!data) {
+        return null;
+      }
+
+      let result = data[0];
+      // Return a geoCoordinates object with lat/lon/country/state (if applicable)
+      let geoLocation = {
+        lat: result.lat,
+        lon: result.lon,
+        country: result.country,
+        state: result.state,
+      };
+      
+      // Now we can query for weather after finding our location
+      fetchWeather(geoLocation);
+    });
+}
+
+// Fetch weather data based on a geographic location
+function fetchWeather(geoLocation) {
+  const apiUrl = 'https://api.openweathermap.org/data/2.5/onecall';
+  const excludes = 'minutely,hourly,alerts';
+
+  fetch(apiUrl
+    + '?lat=' + geoLocation.lat
+    + '&lon=' + geoLocation.lon
+    + '&exclude=' + excludes
+    + '&appid=' + apiKey)
+    .then(function (response) {
+      return response.json();
+    })
+    .then(function (data) {
+      const currentWeather = extractCurrentWeather(data);
+      const forecasts = extractForecasts(data);
+      // Show weather data on page
+      renderWeather(currentWeather, forecasts);
+    });
+}
+
+function extractCurrentWeather(data) {
+
+}
+
+function extractForecasts(data) {
+  
+}
 
 // Show weather in the dashboard (right panel)
 function renderWeather(currentWeather, forecasts) {
@@ -235,4 +306,5 @@ let forecasts = [
   },
 ];
 
+fetchWeather('London');
 renderWeather(currentWeather, forecasts);
