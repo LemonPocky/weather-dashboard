@@ -34,11 +34,19 @@ function fetchGeoCoordinates(city) {
     + '&limit=' + limit 
     + '&appid=' + apiKey)
     .then(function (response) {
+      // check for errors
+      if (!response.ok) {
+        displayError(response.status + ": " + response.statusText);
+        return;
+      }
       return response.json();
     })
     .then(function (data) {
       // Returns null if city is not found
       if (!data) {
+        return null;
+      } else if (!data.length) {
+        displayError('City not found in the database.');
         return null;
       }
 
@@ -64,12 +72,23 @@ function fetchWeather(geoLocation) {
   fetch(apiUrl
     + '?lat=' + geoLocation.lat
     + '&lon=' + geoLocation.lon
+    + '&units=' + 'imperial'
     + '&exclude=' + excludes
     + '&appid=' + apiKey)
     .then(function (response) {
+      // check for errors
+      if (!response.ok) {
+        displayError(response.status + ": " + response.statusText);
+        return;
+      }
       return response.json();
     })
     .then(function (data) {
+      // Returns null if there is an error with the request
+      if (!data) {
+        return null;
+      }
+
       const currentWeather = extractCurrentWeather(data);
       const forecasts = extractForecasts(data);
       // Show weather data on page
@@ -77,12 +96,44 @@ function fetchWeather(geoLocation) {
     });
 }
 
+// Returns a weather object describing the current weather conditions
+// from api fetch call
 function extractCurrentWeather(data) {
-
+  const current = data.current;
+  const currentWeather = {
+    date: moment(),
+    iconCode: current.weather[0].icon,
+    description: current.weather[0].description,
+    tempMax: Math.round(current.temp),
+    windSpeed: Math.round(current.wind_speed),
+    windDegrees: current.wind_deg,
+    humidity: current.humidity,
+    uvi: current.uvi
+  };
+  return currentWeather;
 }
 
+// Returns an array of weather objects describing the forecast for the next 
+// five days from api fetch call
 function extractForecasts(data) {
-  
+  const dailies = data.daily.slice(0,5);
+  let forecasts = [];
+
+  for (let i = 0; i < dailies.length; i++) {
+    const current = dailies[i];
+    const forecast = {
+      date: moment().add(i, 'd'),
+      iconCode: current.weather[0].icon,
+      description: current.weather[0].description,
+      tempMax: Math.round(current.temp.day),
+      windSpeed: Math.round(current.wind_speed),
+      windDegrees: current.wind_deg,
+      humidity: current.humidity,
+      uvi: current.uvi,
+    };
+    forecasts.push(forecast);
+  }
+  return forecasts;
 }
 
 // Show weather in the dashboard (right panel)
@@ -146,13 +197,20 @@ function createCard(weather) {
     // Weather Details
     const weatherDetails = $('<ul>');
     weatherDetails.addClass('list-unstyled');
+
     weatherDetails.append($('<li>')
       .text(firstUpperCase(weather.description)));
-    weatherDetails.append($('<li>')
-      .text('High: ' + weather.tempMax + '°F'));
+
+    // Add .temperature class to temp to be selected later
+    const tempDetails = $('<li>');
+    tempDetails.addClass('temperature');
+    tempDetails.text("Temp: " + weather.tempMax + "°F");
+    weatherDetails.append(tempDetails);
+
     weatherDetails.append($('<li>')
       .text('Wind: ' + weather.windSpeed + ' MPH ' 
         + getWindDirection(weather.windDegrees)));
+
     weatherDetails.append($('<li>')
       .text('Humidity: ' + weather.humidity + '%'));
 
@@ -242,69 +300,22 @@ function firstUpperCase(s) {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
-let currentWeather = {
-  date: moment.unix(1624752375),
-  iconCode: "02d",
-  description: "few clouds",
-  tempMax: 72.41,
-  windSpeed: 6.1,
-  windDegrees: 30,
-  humidity: 13,
-  uvi: 6.34,
-};
+// If there's an error with the fetch request, show it under the search bar
+function displayError(string) {
+  const searchCardElement = $('#search-card');
+  const titleElement = searchCardElement.find('.card-title');
+  const errorElement = $('<p>');
+  errorElement.text(string);
+  errorElement.css('color', 'red');
+  errorElement.attr('id', 'search-error-message');
+  titleElement.after(errorElement);
+}
 
-let forecasts = [
-  {
-    date: moment.unix(1624752375),
-    iconCode: "02d",
-    description: "few clouds",
-    tempMax: 72.41,
-    windSpeed: 6.1,
-    windDegrees: 69,
-    humidity: 13,
-    uvi: 6.34,
-  },
-  {
-    date: moment.unix(1624777569),
-    iconCode: "02d",
-    description: "few clouds",
-    tempMax: 72.41,
-    windSpeed: 6.1,
-    windDegrees: 260,
-    humidity: 13,
-    uvi: 12.99,
-  },
-  {
-    date: moment.unix(1624777569),
-    iconCode: "02d",
-    description: "few clouds",
-    tempMax: 72.41,
-    windSpeed: 6.1,
-    windDegrees: 260,
-    humidity: 13,
-    uvi: 12.99,
-  },
-  {
-    date: moment.unix(1624777569),
-    iconCode: "02d",
-    description: "few clouds",
-    tempMax: 72.41,
-    windSpeed: 6.1,
-    windDegrees: 260,
-    humidity: 13,
-    uvi: 12.99,
-  },
-  {
-    date: moment.unix(1624777569),
-    iconCode: "02d",
-    description: "few clouds",
-    tempMax: 72.41,
-    windSpeed: 6.1,
-    windDegrees: 260,
-    humidity: 13,
-    uvi: 12.99,
-  },
-];
+// Hides error under search bar, if any
+function hideError() {
+  $('#search-error-message').remove();
+}
 
-fetchWeather('London');
-renderWeather(currentWeather, forecasts);
+hideError();
+fetchGeoCoordinates('Los Angeles');
+// renderWeather(currentWeather, forecasts);
