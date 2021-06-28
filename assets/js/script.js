@@ -13,6 +13,7 @@
 // geoLocation {
 //   lat: Number
 //   lon: Number
+//   city: String
 //   country: String
 //   state: String
 // }
@@ -55,6 +56,7 @@ function fetchGeoCoordinates(city) {
       let geoLocation = {
         lat: result.lat,
         lon: result.lon,
+        city: city,
         country: result.country,
         state: result.state,
       };
@@ -88,11 +90,10 @@ function fetchWeather(geoLocation) {
       if (!data) {
         return null;
       }
-
       const currentWeather = extractCurrentWeather(data);
       const forecasts = extractForecasts(data);
       // Show weather data on page
-      renderWeather(currentWeather, forecasts);
+      renderWeather(geoLocation, currentWeather, forecasts);
     });
 }
 
@@ -137,25 +138,37 @@ function extractForecasts(data) {
 }
 
 // Show weather in the dashboard (right panel)
-function renderWeather(currentWeather, forecasts) {
+function renderWeather(geoLocation, currentWeather, forecasts) {
   const dashboard = $('#dashboard');
 
   dashboard.append($("<h2>").text("Current Weather"));
-  dashboard.append(displayCurrent(currentWeather));
+  dashboard.append($("<h3>").text(buildLocation(geoLocation)));
+  dashboard.append(buildCurrentWeather(currentWeather));
 
   dashboard.append($('<h2>').text('Five-Day Forecast'));
-  dashboard.append(displayForecast(forecasts));
+  dashboard.append(buildForecast(forecasts));
+}
+
+// Display the current city and state/country
+function buildLocation(geoLocation) {
+  let locationString = geoLocation.city + ", ";
+  if (!geoLocation.state) {
+    locationString += geoLocation.country;
+  } else {
+    locationString += geoLocation.state;
+  }
+  return locationString;
 }
 
 // Create the card that displays the current weather
-function displayCurrent(currentWeather) {
+function buildCurrentWeather(currentWeather) {
   const currentWeatherCard = createCard(currentWeather);
   currentWeatherCard.attr('id', 'current-weather');
   return currentWeatherCard;
 }
 
 // Create the container + cards that shows the five-day forecast
-function displayForecast(forecasts) {
+function buildForecast(forecasts) {
   const fiveDayForecastElement = $("<div>");
   fiveDayForecastElement.attr('id', 'five-day-forecast');
   fiveDayForecastElement.addClass('d-flex');
@@ -317,5 +330,5 @@ function hideError() {
 }
 
 hideError();
-fetchGeoCoordinates('Los Angeles');
+fetchGeoCoordinates('San Diego');
 // renderWeather(currentWeather, forecasts);
