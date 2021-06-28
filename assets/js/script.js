@@ -24,6 +24,44 @@ const iconUrl = "http://openweathermap.org/img/wn/";
 // Normally this would be in a config file probably
 const apiKey = '2d7684df0d8779cc4e1642a2a6157140';
 
+// Handles submitting city lookup form when Submit is clicked
+function handleCitySearch(event) {
+  event.preventDefault();
+  const searchElement = $('#search-form input');
+  let search = searchElement.val();
+  search = allTrim(search);
+
+  if (!search) {
+    return;
+  }
+
+  hideError();
+  showLoader();
+  searchElement.val('');
+  fetchGeoCoordinates(search);
+}
+
+// Handles looking up a city from search history
+function handleHistorySearch(event) {
+  event.preventDefault();
+  const searchElement = $("#search-form input");
+
+  const geoLocation = {
+    lat: $(this).attr('data-lat'),
+    lon: $(this).attr('data-lon'),
+    city: $(this).text().split(',')[0],
+    country: $(this).attr('data-country'),
+    state: $(this).attr('data-state')
+  }
+  
+  // Because geoLocation was stored in the history button, we can
+  // skip fetchGeoCoordinates API call
+  hideError();
+  showLoader();
+  searchElement.val('');
+  fetchWeather(geoLocation);
+}
+
 // Fetch geographic data about a city based on city string
 function fetchGeoCoordinates(city) {
   const apiUrl = 'http://api.openweathermap.org/geo/1.0/direct';
@@ -147,6 +185,10 @@ function renderWeather(geoLocation, currentWeather, forecasts) {
 
   dashboard.append($('<h2>').text('Five-Day Forecast'));
   dashboard.append(buildForecast(forecasts));
+
+  // Search was successful, add to search history
+  addToHistory(geoLocation);
+  hideLoader();
 }
 
 // Display the current city and state/country
@@ -241,6 +283,42 @@ function createCard(weather) {
     return newCard;
 }
 
+// Add the search to the search history
+function addToHistory(geoLocation) {
+  const historyContainer = $('#history-container');
+  // Create a new Bootstrap button
+  const button = $('<button>');
+  button.addClass('btn btn-secondary history-button');
+  button.attr('type', 'button');
+  button.attr('value', 'Input');
+
+  // Save geoLocation data in buttons to save an API call
+  button.attr('data-lat', geoLocation.lat);
+  button.attr('data-lon', geoLocation.lon);
+  button.attr('data-country', geoLocation.country);
+  button.attr('data-state', geoLocation.state);
+  // The button text is the city plus the state/country
+  button.text(buildLocation(geoLocation));
+  
+  // Add the button to the top of the history
+  historyContainer.prepend(button);
+}
+
+// Clears the dashboard and shows loading circle
+function showLoader() {
+  const dashboard = $('#dashboard');
+  const loader = $('<div>');
+  loader.addClass('loader');
+  dashboard.empty();
+  dashboard.append(loader);
+}
+
+// Hide loading circle
+function hideLoader() {
+  const loader = $(".loader");
+  loader.remove();
+}
+
 // Helper function that calculates wind direction based on degrees
 function getWindDirection(degrees) {
   // There's 16 different wind direction strings (N, NNE, NE, ENE ...)
@@ -313,8 +391,18 @@ function firstUpperCase(s) {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
+// Helper function that trims trailing and leading whitespace and multiple
+// adjacent whitespace in a string
+// https://stackoverflow.com/a/7764370
+function allTrim(s) {
+  return s.replace(/\s+/g, " ").replace(/^\s+|\s+$/, "").trim();
+}
+
 // If there's an error with the fetch request, show it under the search bar
 function displayError(string) {
+  // ghetto error handler hides spinny loader element
+  hideLoader();
+
   const searchCardElement = $('#search-card');
   const titleElement = searchCardElement.find('.card-title');
   const errorElement = $('<p>');
@@ -329,6 +417,5 @@ function hideError() {
   $('#search-error-message').remove();
 }
 
-hideError();
-fetchGeoCoordinates('San Diego');
-// renderWeather(currentWeather, forecasts);
+$('#search-card').submit(handleCitySearch);
+$('#history-container').on('click', '.history-button', handleHistorySearch);
