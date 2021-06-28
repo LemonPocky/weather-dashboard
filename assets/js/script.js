@@ -28,6 +28,7 @@ const apiKey = '2d7684df0d8779cc4e1642a2a6157140';
 function init() {
   $("#search-card").submit(handleCitySearch);
   $("#history-container").on("click", ".history-button", handleHistorySearch);
+  $("#delete-history").click(handleDeleteHistory);
   loadFromLocalStorage();
 }
 
@@ -345,6 +346,17 @@ function loadFromLocalStorage() {
     }
     addToHistory(geoLocation);
   }
+}
+
+// Removes all history on page and in localStorage
+// Requires user confirmation
+function handleDeleteHistory() {
+  $('#delete-history-modal').on('click', '.btn-danger', function () {
+    localStorage.removeItem('savedSearches');
+    $('#history-container').empty();    
+    $("#delete-history-modal").modal('hide');
+  });
+  $('#delete-history-modal').modal();
 }
 
 // Clears the dashboard and shows loading circle
