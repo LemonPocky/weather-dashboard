@@ -24,6 +24,13 @@ const iconUrl = "http://openweathermap.org/img/wn/";
 // Normally this would be in a config file probably
 const apiKey = '2d7684df0d8779cc4e1642a2a6157140';
 
+// Runs on webpage load
+function init() {
+  $("#search-card").submit(handleCitySearch);
+  $("#history-container").on("click", ".history-button", handleHistorySearch);
+  loadFromLocalStorage();
+}
+
 // Handles submitting city lookup form when Submit is clicked
 function handleCitySearch(event) {
   event.preventDefault();
@@ -47,8 +54,8 @@ function handleHistorySearch(event) {
   const searchElement = $("#search-form input");
 
   const geoLocation = {
-    lat: $(this).attr('data-lat'),
-    lon: $(this).attr('data-lon'),
+    lat: parseFloat($(this).attr('data-lat')),
+    lon: parseFloat($(this).attr('data-lon')),
     city: $(this).text().split(',')[0],
     country: $(this).attr('data-country'),
     state: $(this).attr('data-state')
@@ -177,17 +184,22 @@ function extractForecasts(data) {
 
 // Show weather in the dashboard (right panel)
 function renderWeather(geoLocation, currentWeather, forecasts) {
-  const dashboard = $('#dashboard');
+  const dashboard = $("#dashboard");
 
   dashboard.append($("<h2>").text("Current Weather"));
   dashboard.append($("<h3>").text(buildLocation(geoLocation)));
   dashboard.append(buildCurrentWeather(currentWeather));
 
-  dashboard.append($('<h2>').text('Five-Day Forecast'));
+  dashboard.append($("<h2>").text("Five-Day Forecast"));
   dashboard.append(buildForecast(forecasts));
 
   // Search was successful, add to search history
-  addToHistory(geoLocation);
+  // if this city is not in the search history already
+  if (!historyContainsGeoLocation(geoLocation)) {
+    addToHistory(geoLocation);
+    // Save entry into localStorage
+    addToLocalStorage(geoLocation);
+  }
   hideLoader();
 }
 
@@ -285,8 +297,8 @@ function createCard(weather) {
 
 // Add the search to the search history
 // TODO: Limit to 10 buttons
-// TODO: Check and ignore duplicates
 function addToHistory(geoLocation) {
+
   const historyContainer = $('#history-container');
   // Create a new Bootstrap button
   const button = $('<button>');
@@ -304,22 +316,35 @@ function addToHistory(geoLocation) {
   
   // Add the button to the top of the history
   historyContainer.prepend(button);
-
-  // Save entry into localStorage
-  addToLocalStorage(geoLocation);
 }
 
 // Saves geoLocation into localStorage array
-// The most recent element will be at the front
 // TODO: Limit to 10
 function addToLocalStorage(geoLocation) {
   let savedSearches = JSON.parse(localStorage.getItem("savedSearches"));
-  console.log(savedSearches);
   if (!savedSearches) {
     savedSearches = [];
   }
-  savedSearches.unshift(geoLocation);
+  savedSearches.push(geoLocation);
   localStorage.setItem("savedSearches", JSON.stringify(savedSearches));
+}
+
+function loadFromLocalStorage() {
+  let savedSearches = JSON.parse(localStorage.getItem("savedSearches"));
+  if (!savedSearches) {
+    return;
+  }
+  for (let i = 0; i < savedSearches.length; i++) {
+    const current = savedSearches[i];
+    const geoLocation = {
+      lat: current.lat,
+      lon: current.lon,
+      city: current.city,
+      country: current.country,
+      state: current.state,
+    }
+    addToHistory(geoLocation);
+  }
 }
 
 // Clears the dashboard and shows loading circle
@@ -335,6 +360,24 @@ function showLoader() {
 function hideLoader() {
   const loader = $(".loader");
   loader.remove();
+}
+
+// Returns true if localStorage history contains this geoLocation
+// Otherwise, returns false
+function historyContainsGeoLocation(geoLocation) {
+  let savedSearches = JSON.parse(localStorage.getItem("savedSearches"));
+  if (!savedSearches) {
+    return false;
+  }
+
+  for (let i = 0; i < savedSearches.length; i++) {
+    const current = savedSearches[i];
+    // If there is a match in coordinates, return true
+    if (current.lat === geoLocation.lat && current.lon === geoLocation.lon) {
+      return true;
+    }
+  }
+  return false;
 }
 
 // Helper function that calculates wind direction based on degrees
@@ -435,5 +478,4 @@ function hideError() {
   $('#search-error-message').remove();
 }
 
-$('#search-card').submit(handleCitySearch);
-$('#history-container').on('click', '.history-button', handleHistorySearch);
+init();
