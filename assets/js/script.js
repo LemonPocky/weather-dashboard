@@ -20,7 +20,7 @@
 
 // Constants
 const dateFormatString = 'M/D/YYYY';
-const iconUrl = "http://openweathermap.org/img/wn/";
+const iconUrl = "https://openweathermap.org/img/wn/";
 // Normally this would be in a config file probably
 const apiKey = '2d7684df0d8779cc4e1642a2a6157140';
 
@@ -72,7 +72,7 @@ function handleHistorySearch(event) {
 
 // Fetch geographic data about a city based on city string
 function fetchGeoCoordinates(city) {
-  const apiUrl = 'http://api.openweathermap.org/geo/1.0/direct';
+  const apiUrl = 'https://api.openweathermap.org/geo/1.0/direct';
   // max number of results to get (assume only first for now)
   const limit = 1;
 
